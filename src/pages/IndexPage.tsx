@@ -50,7 +50,9 @@ export const IndexPage: FC = () => {
   const [arffRelation, setArffRelation] = useState("");
 
   const startTime = useRef<number>(0);
-  const data = useRef(new Set<{ x: number; y: number; time: number }>());
+  const data = useRef(
+    new Set<{ x: number; y: number; dx: number; dy: number; time: number }>()
+  );
 
   useEffect(() => {
     if (isRecording) {
@@ -60,8 +62,19 @@ export const IndexPage: FC = () => {
 
   useEffect(() => {
     if (data.current && webgazer.state.gazePosition && isRecording) {
+      const prevData =
+        data.current.size > 0 ? [...data.current][data.current.size - 1] : null;
+
+      const { x, y } = webgazer.state.gazePosition;
+
+      const dx = prevData ? x - prevData.x : 0;
+      const dy = prevData ? y - prevData.y : 0;
+
       data.current.add({
-        ...webgazer.state.gazePosition,
+        x,
+        y,
+        dx,
+        dy,
         time: performance.now() - startTime.current,
       });
     }
